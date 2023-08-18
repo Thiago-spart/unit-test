@@ -2,34 +2,59 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import fakeData from "./data.json"
 import Image from "next/image";
 
 import { convertCurrency } from "@/utils/convertCurrency";
 import React from "react";
 import { ItemDTO } from "@/DTO/itemDTO";
 
+import axios from "axios"
+
 export default function Home() {
+  const TAX_RATE = 0.13;
+  const SHIPPING_FEE = 15;
+
   const [subTotal, setSubTotal] = React.useState(2094.97);
   const [hst, setHst] = React.useState(272.3461);
   const [total, setTotal] = React.useState(2382.3161);
   const [estimatedDelivery, setEstimatedDelivery] = React.useState("Nov 24, 2021");
 
-  const [lineItems, setLineItems] = React.useState([...fakeData.lineItems])
+  const [lineItems, setLineItems] = React.useState<ItemDTO[]>()
 
-  // const dataQuery = useQuery({
-  //   queryKey: ["data"],
-  //   queryFn: () => fakeData
-  // })
+  const calculateFees = (lineItems: ItemDTO[]) => {
+    const newSubtotal = lineItems.reduce((acc, item) => acc + item.price, 0);
+    const newTax = subTotal * TAX_RATE;
+    const newTotal = newSubtotal + newTax + SHIPPING_FEE;
 
+    setSubTotal(newSubtotal);
+    setHst(newTax);
+    setTotal(newTotal);
+  };
+
+  const dataQuery = useQuery({
+    queryKey: ["data"],
+    queryFn: () => axios.get("http://localhost:3000/api/cart-data"),
+    onSuccess: (data) => {
+      setLineItems(data.data)
+    }
+  })
 
   const removeLineItem = (lineItemId: number) => {
-    setLineItems((lineItems) => lineItems.filter((item) => item.id !== lineItemId))
+    setLineItems((lineItems) => lineItems?.filter((item) => item.id !== lineItemId))
   }
 
   const addLineItem = (lineItem: ItemDTO) => {
-    setLineItems((lineItems) => [...lineItems, lineItem])
+    setLineItems((lineItems) => [...lineItems || [], { ...lineItem, id: (Math.random() * 1000) }])
   }
+
+  React.useEffect(() => {
+    calculateFees(lineItems || []);
+  }, [lineItems, dataQuery]);
+
+
+  React.useEffect(() => {
+    console.log(hst)
+  }, [hst])
 
   return (
     <main className="min-h-[100dvh] max-w-7xl mx-auto py-2 px-4 md:py-4 xl:px-8 flex flex-col">
@@ -38,7 +63,7 @@ export default function Home() {
       </h1>
 
       <ul className="w-full flex flex-col gap-4 mb-4 md:mb-6">
-        {lineItems.map((item) => (
+        {lineItems?.map((item) => (
           <li key={item.id} className="flex gap-4 flex-col md:flex-row w-full">
             <Image src={item.image} alt={item.title} width={100} height={100} className="object-contain w-full max-w-[150px] sm:w-[10%]" />
 
