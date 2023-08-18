@@ -6,6 +6,7 @@ import fakeData from "./data.json"
 import Image from "next/image";
 
 import clsx from "clsx"
+import { convertCurrency } from "@/utils/convertCurrency";
 
 export default function Home() {
   const SUBTOTAL = 2094.97;
@@ -26,7 +27,7 @@ export default function Home() {
         Your Cart
       </h1>
 
-      <ul className="w-full flex flex-col gap-4">
+      <ul className="w-full flex flex-col gap-4 mb-4 md:mb-6">
         {dataQuery.data?.lineItems.map((item) => (
           <li key={item.id} className="flex gap-4 flex-col md:flex-row w-full">
             <Image src={item.image} alt={item.title} width={100} height={100} className="object-contain w-full max-w-[150px] sm:w-[10%]" />
@@ -59,6 +60,31 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      <div className="flex flex-col gap-2 w-full font-bold">
+        <div className="flex justify-between items-center gap-2">
+          <span>Subtotal</span>
+
+          <span>{convertCurrency(SUBTOTAL)}</span>
+        </div>
+        <div className="flex justify-between items-center gap-2">
+          <span>Taxes (estimated)</span>
+
+          <span>{convertCurrency(HST)}</span>
+        </div>
+
+        <div className="flex justify-between items-center gap-2">
+          <span>Shipping</span>
+
+          <span>Free</span>
+        </div>
+
+        <div className="flex justify-between items-center gap-2">
+          <span className="text-blue">Total</span>
+
+          <span>{convertCurrency(TOTAL)}</span>
+        </div>
+      </div>
     </main>
   )
 }
