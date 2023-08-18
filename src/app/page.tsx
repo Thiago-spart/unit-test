@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { convertCurrency } from "@/utils/convertCurrency";
 import React from "react";
+import { ItemDTO } from "@/DTO/itemDTO";
 
 export default function Home() {
   const [subTotal, setSubTotal] = React.useState(2094.97);
@@ -14,12 +15,21 @@ export default function Home() {
   const [total, setTotal] = React.useState(2382.3161);
   const [estimatedDelivery, setEstimatedDelivery] = React.useState("Nov 24, 2021");
 
-  const dataQuery = useQuery({
-    queryKey: ["data"],
-    queryFn: () => fakeData
-  })
+  const [lineItems, setLineItems] = React.useState([...fakeData.lineItems])
 
-  console.log(dataQuery.data)
+  // const dataQuery = useQuery({
+  //   queryKey: ["data"],
+  //   queryFn: () => fakeData
+  // })
+
+
+  const removeLineItem = (lineItemId: number) => {
+    setLineItems((lineItems) => lineItems.filter((item) => item.id !== lineItemId))
+  }
+
+  const addLineItem = (lineItem: ItemDTO) => {
+    setLineItems((lineItems) => [...lineItems, lineItem])
+  }
 
   return (
     <main className="min-h-[100dvh] max-w-7xl mx-auto py-2 px-4 md:py-4 xl:px-8 flex flex-col">
@@ -28,7 +38,7 @@ export default function Home() {
       </h1>
 
       <ul className="w-full flex flex-col gap-4 mb-4 md:mb-6">
-        {dataQuery.data?.lineItems.map((item) => (
+        {lineItems.map((item) => (
           <li key={item.id} className="flex gap-4 flex-col md:flex-row w-full">
             <Image src={item.image} alt={item.title} width={100} height={100} className="object-contain w-full max-w-[150px] sm:w-[10%]" />
 
@@ -50,9 +60,15 @@ export default function Home() {
                 <div className="flex flex-col justify-end items-end gap-4 mt-auto">
                   Estimated Delivery Date: {estimatedDelivery}
 
-                  <button className="btn btn-ghost text-black w-fit btn-sm underline" type="button">
-                    Remove
-                  </button>
+                  <div className="flex flex-col md:flex-row gap-2">
+                    <button onClick={() => addLineItem(item)} className="btn btn-ghost text-info w-fit btn-sm underline" type="button">
+                      Add
+                    </button>
+
+                    <button onClick={() => removeLineItem(item.id)} className="btn btn-ghost text-black w-fit btn-sm underline" type="button">
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
 
