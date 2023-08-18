@@ -5,14 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import fakeData from "./data.json"
 import Image from "next/image";
 
-import clsx from "clsx"
 import { convertCurrency } from "@/utils/convertCurrency";
+import React from "react";
 
 export default function Home() {
-  const SUBTOTAL = 2094.97;
-  const HST = 272.3461;
-  const TOTAL = 2382.3161;
-  const ESTIMATED_DELIVERY = "Nov 24, 2021";
+  const [subTotal, setSubTotal] = React.useState(2094.97);
+  const [hst, setHst] = React.useState(272.3461);
+  const [total, setTotal] = React.useState(2382.3161);
+  const [estimatedDelivery, setEstimatedDelivery] = React.useState("Nov 24, 2021");
 
   const dataQuery = useQuery({
     queryKey: ["data"],
@@ -45,10 +45,10 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col justify-end items-end gap-4 ml-auto">
-                <span className="font-bold" title="price">${item.price}</span>
+                <span className="font-bold" title="price">{convertCurrency(item.price)}</span>
 
                 <div className="flex flex-col justify-end items-end gap-4 mt-auto">
-                  Estimated Delivery Date: {ESTIMATED_DELIVERY}
+                  Estimated Delivery Date: {estimatedDelivery}
 
                   <button className="btn btn-ghost text-black w-fit btn-sm underline" type="button">
                     Remove
@@ -65,12 +65,12 @@ export default function Home() {
         <div className="flex justify-between items-center gap-2">
           <span>Subtotal</span>
 
-          <span>{convertCurrency(SUBTOTAL)}</span>
+          <span>{convertCurrency(subTotal)}</span>
         </div>
         <div className="flex justify-between items-center gap-2">
           <span>Taxes (estimated)</span>
 
-          <span>{convertCurrency(HST)}</span>
+          <span>{convertCurrency(hst)}</span>
         </div>
 
         <div className="flex justify-between items-center gap-2">
@@ -82,7 +82,7 @@ export default function Home() {
         <div className="flex justify-between items-center gap-2">
           <span className="text-blue">Total</span>
 
-          <span>{convertCurrency(TOTAL)}</span>
+          <span>{convertCurrency(total)}</span>
         </div>
       </div>
     </main>
