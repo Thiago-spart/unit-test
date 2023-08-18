@@ -10,6 +10,14 @@ import { ItemDTO } from "@/DTO/itemDTO";
 
 import axios from "axios"
 
+import * as yup from "yup";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const schema = yup.object({
+  postalCode: yup.string().required("Postal code is required"),
+})
+
 export default function Home() {
   const TAX_RATE = 0.13;
   const SHIPPING_FEE = 15;
@@ -20,6 +28,10 @@ export default function Home() {
   const [estimatedDelivery, setEstimatedDelivery] = React.useState("Nov 24, 2021");
 
   const [lineItems, setLineItems] = React.useState<ItemDTO[]>()
+
+  const { register, handleSubmit } = useForm({
+    resolver: yupResolver(schema),
+  })
 
   const calculateFees = (lineItems: ItemDTO[]) => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + item.price, 0);
@@ -45,6 +57,10 @@ export default function Home() {
 
   const addLineItem = (lineItem: ItemDTO) => {
     setLineItems((lineItems) => [...lineItems || [], { ...lineItem, id: (Math.random() * 1000) }])
+  }
+
+  const onSubmitPostalCode = (data: { postalCode: string }) => {
+    console.log(data)
   }
 
   React.useEffect(() => {
@@ -101,6 +117,22 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      <div className="divider" aria-disabled />
+
+      <form onSubmit={handleSubmit(onSubmitPostalCode)} className="mb-8 flex items-center justify-end">
+        <label htmlFor="postalCode" className="sr-only">Digit your postal code</label>
+        <input
+          id="postalCode"
+          type="text"
+          className="input input-bordered rounded-s-xl rounded-e-none"
+          placeholder="Postal Code"
+          inputMode="numeric"
+          {...register("postalCode")}
+        />
+
+        <input type="submit" className="btn btn-info text-white rounded-s-none rounded-e-xl" value="Continue" />
+      </form>
 
       <div className="flex flex-col gap-2 w-full font-bold">
         <div className="flex justify-between items-center gap-2">
